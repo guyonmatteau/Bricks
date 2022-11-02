@@ -14,6 +14,9 @@ DOCKER_PORTS=-p 8545:8545
 chain:
 	npx hardhat node --verbose
 
+accounts: 
+	npx hardhat run --network localhost scripts/accounts.js
+
 deploy: 
 	forge create --private-key ${PRIVATE_KEY1} src/Wallet.sol:Wallet
 
