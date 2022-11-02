@@ -9,3 +9,6 @@ lib/
 build/
 out/
 cache/
+
+# hardhat
+node_modules/
