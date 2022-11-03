@@ -17,8 +17,11 @@ chain:
 accounts: 
 	npx hardhat run --network localhost scripts/accounts.js
 
-deploy: 
-	forge create --private-key ${PRIVATE_KEY1} src/Wallet.sol:Wallet
+deploy.localhost: 
+	forge create --private-key ${PRIVATE_KEY1} src/Wallet.sol:Wallet --verify
+
+deploy.goerli:
+	forge create --private-key ${PRIVATE_KEY_GOERLI} src/Wallet.sol:Wallet --rpc-url https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY} --verify
 
 test:
 	forge test -vvvv
