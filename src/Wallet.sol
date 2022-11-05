@@ -15,6 +15,8 @@ contract Wallet {
         require(msg.sender == owner, "No owner");
         _;
     }
+        
+    fallback() external payable {}
 
     receive() external payable {}
 

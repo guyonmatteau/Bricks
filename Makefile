@@ -3,13 +3,10 @@ include .env
 export 
 
 ### GLOBALS
-CONTRACT=SharedWallet
-NETWORK=localhost
-DOCKER_IMAGE=sharedwallet
-DOCKER_TAG=$(shell git branch --show-current)
-DOCKER_ENV=-e ALCHEMY_API_KEY=$(ALCHEMY_API_KEY) -e PRIVATE_KEY=$(PRIVATE_KEY)
-DOCKER_PORTS=-p 8545:8545
-
+CONTRACT=Wallet
+DOCKER_IMAGE=wallet
+GOERLI_RPC_URL=https://eth-goerli.alchemyapi.io/v2
+LOCALHOST_RPC_URL=http://localhost:8548
 
 chain:
 	npx hardhat node --verbose
@@ -18,10 +15,10 @@ accounts:
 	npx hardhat run --network localhost scripts/accounts.js
 
 deploy.localhost: 
-	forge create --private-key ${PRIVATE_KEY1} src/Wallet.sol:Wallet --verify
+	forge create --private-key ${PRIVATE_KEY1} src/${CONTRACT}.sol:${CONTRACT}
 
 deploy.goerli:
-	forge create --private-key ${PRIVATE_KEY_GOERLI} src/Wallet.sol:Wallet --rpc-url https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY} --verify
+	forge create --private-key ${PRIVATE_KEY_GOERLI} --rpc-url ${GOERLI_RPC_URL}/${ALCHEMY_KEY} --verify src/${CONTRACT}.sol:${CONTRACT}
 
 test:
 	forge test -vvvv
