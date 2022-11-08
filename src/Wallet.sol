@@ -21,7 +21,8 @@ contract Wallet {
     receive() external payable {}
 
     function withdraw(uint256 amount) public isOwner {
-        payable(msg.sender).transfer(amount);
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
         emit Withdraw(address(this), amount);
     }
 
