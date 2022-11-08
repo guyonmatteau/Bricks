@@ -8,6 +8,7 @@ DOCKER_IMAGE=wallet
 GOERLI_RPC_URL=https://eth-goerli.alchemyapi.io/v2
 LOCALHOST_RPC_URL=http://localhost:8548
 
+# PROTOCOL
 chain:
 	npx hardhat node --verbose
 
@@ -31,3 +32,7 @@ lint:
 
 clean:
 	-rm -r build cache
+
+# UI
+ui:
+	streamlit run app/main.py

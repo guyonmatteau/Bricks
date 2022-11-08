@@ -1,9 +1,11 @@
 {
   "name": "hardhat-project",
   "devDependencies": {
+    "@metamask/detect-provider": "^2.0.0",
     "hardhat": "^2.12.2"
   },
   "dependencies": {
     "ethers": "^5.7.2"
-  }
+  },
+  "type": "module"
 }
