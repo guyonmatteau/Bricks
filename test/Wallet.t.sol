@@ -20,13 +20,12 @@ contract WalletTest is Test {
         newWallet = new Wallet();
         vm.deal(address(newWallet), 1 ether);
     }
-    
+
     function testSendEth() public {
         address(newWallet).call{value: 2 ether}("");
-        uint balance = address(newWallet).balance;
+        uint256 balance = address(newWallet).balance;
         emit log_named_uint("balance", balance);
     }
-
 
     function testSucceedWithdraw() public {
         vm.startPrank(owner);

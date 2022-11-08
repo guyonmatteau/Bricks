@@ -15,13 +15,13 @@ contract Wallet {
         require(msg.sender == owner, "No owner");
         _;
     }
-        
+
     fallback() external payable {}
 
     receive() external payable {}
 
     function withdraw(uint256 amount) public isOwner {
-        (bool success, ) = msg.sender.call{value: amount}("");
+        (bool success,) = msg.sender.call{value: amount}("");
         require(success, "Transfer failed");
         emit Withdraw(address(this), amount);
     }
