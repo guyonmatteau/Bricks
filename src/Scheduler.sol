@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
+
 contract Scheduler {
- 
     error InsufficientBalance(uint256 paymentId, uint256 available, uint256 required);
     error TransactionFailed();
 
-   event PaymentScheduled(uint256 paymentId, address indexed owner, address indexed to, uint256 amount);
+    event PaymentScheduled(uint256 paymentId, address indexed owner, address indexed to, uint256 amount);
     event PaymentExecuted(uint256 paymentId);
-    event PaymentDeactivated(uint256 indexed paymentId, address indexed owner); 
+    event PaymentDeactivated(uint256 indexed paymentId, address indexed owner);
 
     uint256 public paymentId;
 
@@ -27,8 +27,8 @@ contract Scheduler {
 
     constructor() {}
 
-    // to do: to be inherited from ERC20 
-    receive() external payable{
+    // to do: to be inherited from ERC20
+    receive() external payable {
         balanceOf[msg.sender] += msg.value;
     }
 
@@ -47,30 +47,28 @@ contract Scheduler {
             lastExecuted: 0,
             active: true
         });
-
+        scheduledPayments[paymentId] = newPayment;
         emit PaymentScheduled(paymentId, msg.sender, to, amount);
         return paymentId;
     }
 
-    function getPaymentById(uint256 id) public returns (Payment memory) {
+    function getPaymentById(uint256 id) public view returns (Payment memory) {
         return scheduledPayments[id];
     }
 
-        
     function executePayment(uint256 id) public {
         Payment memory payment = scheduledPayments[id];
         uint256 balanceOfUser = balanceOf[msg.sender];
-        require(balanceOfUser > payment.amount, InsufficientBalance(id, balanceOfUser, payment.amount));
+        require(balanceOfUser > payment.amount, "User does not have sufficient funds");
         balanceOf[msg.sender] -= payment.amount;
-        payment.lastExecuted = now;
+        payment.lastExecuted = block.timestamp;
         scheduledPayments[id] = payment;
-        (bool success, ) = msg.sender.call{value: payment.amount}("");
-        require(success, TransactionFailed());
+        (bool success,) = msg.sender.call{value: payment.amount}("");
+        require(success, "Transaction Failed");
     }
 
     function deactivatePayment(uint256 id) public {
         scheduledPayments[id].active = false;
-        emit PaymentDeactivated(id, msg.sender); 
+        emit PaymentDeactivated(id, msg.sender);
     }
-
 }
