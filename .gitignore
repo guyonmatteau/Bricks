@@ -9,6 +9,9 @@ build/
 out/
 cache/
 
+# personal
+LEARNINGS.md
+
 # hardhat
 node_modules/
 package-lock.json
