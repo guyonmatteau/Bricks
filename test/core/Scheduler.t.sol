@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
+import "@forge-std/Test.sol";
 import {Scheduler} from "contracts/core/Scheduler.sol";
 import {DataTypes} from "contracts/libraries/DataTypes.sol";
 
