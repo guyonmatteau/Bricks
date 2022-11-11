@@ -10,6 +10,7 @@ contract Scheduler {
     event PaymentDeactivated(uint256 indexed paymentId, address indexed owner);
 
     uint256 public paymentId;
+    address public chainlinkRefContract; 
 
     struct Payment {
         uint256 paymentId;
@@ -22,10 +23,15 @@ contract Scheduler {
     }
 
     mapping(uint256 => Payment) public scheduledPayments;
-    mapping(address => uint256) public fundsDeposited;
     mapping(address => uint256) public balanceOf;
 
-    constructor() {}
+    constructor(
+        // address chainlinkRefContract
+    ) {
+        // chainlinkRefContract = chainlinkRefContract;
+        chainlinkRefContract = address(1);
+
+    }
 
     // to do: to be inherited from ERC20
     receive() external payable {
@@ -71,4 +77,16 @@ contract Scheduler {
         scheduledPayments[id].active = false;
         emit PaymentDeactivated(id, msg.sender);
     }
+
+    /// @notice Swap ETH for required amount USDC
+    /// @dev This should do X  
+    /// @return The id of the scheduled recurring payment
+    function swap() internal {}   
+
+    /// @notice Request current WETH/USDC rate needed to determine how much ETH should be swapped
+    /// @dev Requires chainlink for external data
+    /// @return Current WETH/USDC rate
+    function requestRate() internal {}
+
+
 }

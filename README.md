@@ -15,8 +15,8 @@ Bricks is a combination of Defi and paying your rent or mortgage. The basic idea
 
 ## Contract addresses
 
-| Network | Address | Version |
-| Goerli | [<address>](link) | <version> |
+| Network | Address | Version |  
+| Goerli | [address](link) | _version_ |
 
 ## Deployment
 
@@ -29,7 +29,9 @@ PRIVATE_KEY_GOERLI=<private-key-of-goerli-address-to-deploy-from>
 ## MVPs
 
 For iterative development the following versions have been iterated over:
-1a. One ownable ERC20 contract (Scheduler), where the contract swaps ether to USDC (so no borrowing)
-1b. Integrate it with Chainlink (1a)
-2. Ability to borrow against ETH, with default value
-3. 
+1. Contract that keeps track of users funds and is allowed to transfer funds on behalf of user. 
+2. Contract that able to swap WETH to USDC.  
+    * Contract that is able to swaps ether to USDC on a fixed rate on behalf of user (so no borrowing).  
+    * Add Chainlink reference contract to request current ETH/USDC rate. 
+3. Ability to borrow against ETH, with default value.
+4. 

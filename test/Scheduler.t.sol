@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
-import {Scheduler} from "src/Scheduler.sol";
+import {Scheduler} from "contracts/Scheduler.sol";
 
 contract SChedulerTest is Test {
     Scheduler internal scheduler;
