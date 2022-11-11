@@ -2,7 +2,6 @@
 pragma solidity ^0.8.13;
 
 library DataTypes {
-
     // Recurring payment that can be submitted by the user
     struct RecurringPayment {
         uint256 paymentId;
@@ -13,8 +12,4 @@ library DataTypes {
         uint256 lastExecuted;
         bool active;
     }
-
 }
-
-
-
