@@ -2,9 +2,10 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
-import {Scheduler} from "contracts/Scheduler.sol";
+import {Scheduler} from "contracts/core/Scheduler.sol";
+import {DataTypes} from "contracts/libraries/DataTypes.sol";
 
-contract SChedulerTest is Test {
+contract SchedulerTest is Test {
     Scheduler internal scheduler;
 
     function setUp() public {
@@ -19,7 +20,7 @@ contract SChedulerTest is Test {
 
         uint256 paymentId = scheduler.schedulePayment(to, amount, dayOfMonth);
 
-        Scheduler.Payment memory payment = scheduler.getPaymentById(paymentId);
+        DataTypes.RecurringPayment memory payment = scheduler.getPaymentById(paymentId);
         assertEq(payment.active, true);
 
         emit log_named_uint("paymentId", payment.paymentId);

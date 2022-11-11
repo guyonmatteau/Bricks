@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
+import {DataTypes} from 'contracts/libraries/DataTypes.sol';
+
 contract Scheduler {
     error InsufficientBalance(uint256 paymentId, uint256 available, uint256 required);
     error TransactionFailed();
@@ -12,17 +14,7 @@ contract Scheduler {
     uint256 public paymentId;
     address public chainlinkRefContract; 
 
-    struct Payment {
-        uint256 paymentId;
-        address owner;
-        address to;
-        uint256 amount;
-        uint8 dayOfMonth;
-        uint256 lastExecuted;
-        bool active;
-    }
-
-    mapping(uint256 => Payment) public scheduledPayments;
+    mapping(uint256 => DataTypes.RecurringPayment) public scheduledPayments;
     mapping(address => uint256) public balanceOf;
 
     constructor(
@@ -44,7 +36,7 @@ contract Scheduler {
     function schedulePayment(address to, uint256 amount, uint8 dayOfMonth) public returns (uint256) {
         require(dayOfMonth < 30, "dayOfMonth should be smaller than 30");
         paymentId++;
-        Payment memory newPayment = Payment({
+        DataTypes.RecurringPayment memory newPayment = DataTypes.RecurringPayment({
             paymentId: paymentId,
             owner: msg.sender,
             to: to,
@@ -58,12 +50,12 @@ contract Scheduler {
         return paymentId;
     }
 
-    function getPaymentById(uint256 id) public view returns (Payment memory) {
+    function getPaymentById(uint256 id) public view returns (DataTypes.RecurringPayment memory) {
         return scheduledPayments[id];
     }
 
     function executePayment(uint256 id) public {
-        Payment memory payment = scheduledPayments[id];
+        DataTypes.RecurringPayment memory payment = scheduledPayments[id];
         uint256 balanceOfUser = balanceOf[msg.sender];
         require(balanceOfUser > payment.amount, "User does not have sufficient funds");
         balanceOf[msg.sender] -= payment.amount;
@@ -80,12 +72,10 @@ contract Scheduler {
 
     /// @notice Swap ETH for required amount USDC
     /// @dev This should do X  
-    /// @return The id of the scheduled recurring payment
     function swap() internal {}   
 
     /// @notice Request current WETH/USDC rate needed to determine how much ETH should be swapped
     /// @dev Requires chainlink for external data
-    /// @return Current WETH/USDC rate
     function requestRate() internal {}
 
 
