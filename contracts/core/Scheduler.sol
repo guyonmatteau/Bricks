@@ -14,26 +14,23 @@ contract Scheduler {
     uint256 public paymentId;
     address private immutable chainlinkRefContract;
     address private immutable weth;
+    // to be added more ERC20s
 
+    // paymentId => payment
     mapping(uint256 => DataTypes.RecurringPayment) public scheduledPayments;
+    // user => ERC20 => balance
     mapping(address => mapping(address => uint256)) public tokenBalanceOf;
 
-    mapping(address => uint256) public balanceOf;
-
-    constructor() 
-    // address _chainlinkRefContract,
-    // address _weth,
-    {
+    constructor(
+        // address _chainlinkRefContract,
+        address _weth
+    ) {
         // chainlinkRefContract = _chainlinkRefContract;
         chainlinkRefContract = address(1);
-        // _weth = _weth;
-        weth = address(2);
+        weth = _weth;
     }
 
-    // to do: to be inherited from ERC20
-    receive() external payable {
-        balanceOf[msg.sender] += msg.value;
-    }
+    receive() external payable {}
 
     /// @notice Schedule a recurring payment at any day of the month
     /// @dev The day of the month is not yet converted
@@ -61,12 +58,13 @@ contract Scheduler {
 
     function executePayment(uint256 id) public {
         DataTypes.RecurringPayment memory payment = scheduledPayments[id];
-        uint256 balanceOfUser = balanceOf[msg.sender];
-        require(balanceOfUser > payment.amount, "User does not have sufficient funds");
-        balanceOf[msg.sender] -= payment.amount;
+
+        require(IERC20(weth).balanceOf(msg.sender) > payment.amount, "User does not have sufficient funds");
+
+        tokenBalanceOf[msg.sender][weth] -= payment.amount;
         payment.lastExecuted = block.timestamp;
         scheduledPayments[id] = payment;
-        (bool success,) = msg.sender.call{value: payment.amount}("");
+        (bool success,) = address(this).call{value: payment.amount}("");
         require(success, "Transaction Failed");
     }
 
@@ -94,5 +92,9 @@ contract Scheduler {
         tokenBalanceOf[msg.sender][weth] += amount;
 
         emit TokenSupplied(msg.sender, weth, amount);
+    }
+
+    function balanceOf(address user, address erc20) public returns (uint256) {
+        return tokenBalanceOf[user][erc20];
     }
 }
