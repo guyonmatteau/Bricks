@@ -45,7 +45,7 @@ contract Scheduler {
             amount: amount,
             dayOfMonth: dayOfMonth,
             lastExecuted: 0,
-            active: true
+            isActive: true
         });
         scheduledPayments[paymentId] = newPayment;
         emit PaymentScheduled(paymentId, msg.sender, to, amount);
@@ -53,23 +53,24 @@ contract Scheduler {
     }
 
     function getPaymentById(uint256 id) public view returns (DataTypes.RecurringPayment memory) {
+        require(scheduledPayments[id].isActive, "Payment not found");
         return scheduledPayments[id];
     }
 
     function executePayment(uint256 id) public {
-        DataTypes.RecurringPayment memory payment = scheduledPayments[id];
+        DataTypes.RecurringPayment memory payment = getPaymentById(id);
 
         require(IERC20(weth).balanceOf(msg.sender) > payment.amount, "User does not have sufficient funds");
 
         tokenBalanceOf[msg.sender][weth] -= payment.amount;
         payment.lastExecuted = block.timestamp;
         scheduledPayments[id] = payment;
-        (bool success,) = address(this).call{value: payment.amount}("");
+        bool success = IERC20(weth).transferFrom(address(this), payment.to, payment.amount);
         require(success, "Transaction Failed");
     }
 
     function deactivatePayment(uint256 id) public {
-        scheduledPayments[id].active = false;
+        scheduledPayments[id].isActive = false;
         emit PaymentDeactivated(id, msg.sender);
     }
 

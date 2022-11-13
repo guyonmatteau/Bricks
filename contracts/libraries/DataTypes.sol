@@ -10,6 +10,6 @@ library DataTypes {
         uint256 amount;
         uint8 dayOfMonth;
         uint256 lastExecuted;
-        bool active;
+        bool isActive;
     }
 }
