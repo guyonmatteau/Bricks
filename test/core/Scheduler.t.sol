@@ -27,19 +27,31 @@ contract SchedulerTest is Test {
         weth.increaseAllowance(address(scheduler), 5 ether);
         scheduler.supply(supplyAmount);
 
-        uint256 newBalance = scheduler.balanceOf({user: supplier, erc20: address(weth)});
-        emit log_named_uint("Supplied balance of user after supply", newBalance);
+        uint256 newBalance = scheduler.balanceOf({
+            user: supplier,
+            erc20: address(weth)
+        });
+        emit log_named_uint(
+            "Supplied balance of user after supply",
+            newBalance
+        );
         assertEq(newBalance, supplyAmount);
     }
 
     /// @notice assert that payment is added
-    function testSchedulePayment(address to, uint256 amount, uint8 dayOfMonth) public {
+    function testSchedulePayment(
+        address to,
+        uint256 amount,
+        uint8 dayOfMonth
+    ) public {
         vm.assume(to != address(0));
         vm.assume(dayOfMonth < 30);
 
         uint256 paymentId = scheduler.schedulePayment(to, amount, dayOfMonth);
 
-        DataTypes.RecurringPayment memory payment = scheduler.getPaymentById(paymentId);
+        DataTypes.RecurringPayment memory payment = scheduler.getPaymentById(
+            paymentId
+        );
 
         emit log_named_uint("paymentId", payment.paymentId);
     }
@@ -69,7 +81,10 @@ contract SchedulerTest is Test {
         uint256 newBalanceOfTo = weth.balanceOf(to);
         uint256 newBalanceOfFrom = weth.balanceOf(supplier);
         assertEq(newBalanceOfTo, 0.5 ether);
-        emit log_named_uint("Balance of supplier after transfer", newBalanceOfFrom);
+        emit log_named_uint(
+            "Balance of supplier after transfer",
+            newBalanceOfFrom
+        );
 
         assert(newBalanceOfFrom == 1 ether);
     }

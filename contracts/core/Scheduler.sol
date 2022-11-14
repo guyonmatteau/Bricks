@@ -6,10 +6,19 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {DataTypes} from "contracts/libraries/DataTypes.sol";
 
 contract Scheduler {
-    event PaymentScheduled(uint256 paymentId, address indexed owner, address indexed to, uint256 amount);
+    event PaymentScheduled(
+        uint256 paymentId,
+        address indexed owner,
+        address indexed to,
+        uint256 amount
+    );
     event PaymentExecuted(uint256 paymentId);
     event PaymentDeactivated(uint256 indexed paymentId, address indexed owner);
-    event TokenSupplied(address indexed sender, address indexed tokenAddress, uint256 amount);
+    event TokenSupplied(
+        address indexed sender,
+        address indexed tokenAddress,
+        uint256 amount
+    );
 
     uint256 public paymentId;
     address private immutable chainlinkRefContract;
@@ -35,24 +44,31 @@ contract Scheduler {
     /// @notice Schedule a recurring payment at any day of the month
     /// @dev The day of the month is not yet converted
     /// @return The id of the scheduled recurring payment
-    function schedulePayment(address to, uint256 amount, uint8 dayOfMonth) public returns (uint256) {
+    function schedulePayment(
+        address to,
+        uint256 amount,
+        uint8 dayOfMonth
+    ) public returns (uint256) {
         require(dayOfMonth < 30, "dayOfMonth should be smaller than 30");
         paymentId++;
-        DataTypes.RecurringPayment memory newPayment = DataTypes.RecurringPayment({
-            paymentId: paymentId,
-            owner: msg.sender,
-            to: to,
-            amount: amount,
-            dayOfMonth: dayOfMonth,
-            lastExecuted: 0,
-            isActive: true
-        });
+        DataTypes.RecurringPayment memory newPayment = DataTypes
+            .RecurringPayment({
+                paymentId: paymentId,
+                owner: msg.sender,
+                to: to,
+                amount: amount,
+                dayOfMonth: dayOfMonth,
+                lastExecuted: 0,
+                isActive: true
+            });
         scheduledPayments[paymentId] = newPayment;
         emit PaymentScheduled(paymentId, msg.sender, to, amount);
         return paymentId;
     }
 
-    function getPaymentById(uint256 id) public view returns (DataTypes.RecurringPayment memory) {
+    function getPaymentById(
+        uint256 id
+    ) public view returns (DataTypes.RecurringPayment memory) {
         require(scheduledPayments[id].isActive, "Payment not found");
         return scheduledPayments[id];
     }
@@ -60,12 +76,19 @@ contract Scheduler {
     function executePayment(uint256 id) public {
         DataTypes.RecurringPayment memory payment = getPaymentById(id);
 
-        require(IERC20(weth).balanceOf(msg.sender) > payment.amount, "User does not have sufficient funds");
+        require(
+            IERC20(weth).balanceOf(msg.sender) > payment.amount,
+            "User does not have sufficient funds"
+        );
 
         tokenBalanceOf[msg.sender][weth] -= payment.amount;
         payment.lastExecuted = block.timestamp;
         scheduledPayments[id] = payment;
-        bool success = IERC20(weth).transferFrom(address(this), payment.to, payment.amount);
+        bool success = IERC20(weth).transferFrom(
+            address(this),
+            payment.to,
+            payment.amount
+        );
         require(success, "Transaction Failed");
     }
 
@@ -84,7 +107,10 @@ contract Scheduler {
 
     function supply(uint256 amount) public {
         // check that user has enough funds
-        require(IERC20(weth).balanceOf(msg.sender) >= amount, "Insufficient balance");
+        require(
+            IERC20(weth).balanceOf(msg.sender) >= amount,
+            "Insufficient balance"
+        );
         // give scheduler approval to get funds from user
         require(IERC20(weth).approve(address(this), amount));
         // get funds from users
