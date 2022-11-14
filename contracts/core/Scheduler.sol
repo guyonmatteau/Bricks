@@ -2,6 +2,9 @@
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@uniswap/v2-core/interfaces/IUniswapV2Pair.sol";
+import "@uniswap/v2-core/interfaces/IUniswapV2Factory.sol";
+import "@uniswap/v2-periphery/interfaces/IUniswapV2Router02.sol";
 
 import {DataTypes} from "contracts/libraries/DataTypes.sol";
 
@@ -12,7 +15,7 @@ contract Scheduler {
         address indexed to,
         uint256 amount
     );
-    event PaymentExecuted(uint256 paymentId);
+    event PaymentExecuted(uint256 indexed paymentId);
     event PaymentDeactivated(uint256 indexed paymentId, address indexed owner);
     event TokenSupplied(
         address indexed sender,
@@ -23,7 +26,8 @@ contract Scheduler {
     uint256 public paymentId;
     address private immutable chainlinkRefContract;
     address private immutable weth;
-    // to be added more ERC20s
+    address private immutable usdc;
+    IUniswapV2Router02 private immutable router;
 
     // paymentId => payment
     mapping(uint256 => DataTypes.RecurringPayment) public scheduledPayments;
@@ -32,11 +36,15 @@ contract Scheduler {
 
     constructor(
         // address _chainlinkRefContract,
-        address _weth
+        address _weth,
+        address _usdc,
+        address _uniswapRouter
     ) {
         // chainlinkRefContract = _chainlinkRefContract;
         chainlinkRefContract = address(1);
         weth = _weth;
+        usdc = _usdc;
+        router = IUniswapV2Router02(_uniswapRouter);
     }
 
     receive() external payable {}
@@ -90,6 +98,8 @@ contract Scheduler {
             payment.amount
         );
         require(success, "Transaction Failed");
+
+        emit PaymentExecuted(id);
     }
 
     function deactivatePayment(uint256 id) public {
@@ -98,8 +108,19 @@ contract Scheduler {
     }
 
     /// @notice Swap ETH for required amount USDC
-    /// @dev This should do X
-    function swap() internal {}
+    /// @dev This should do XA
+    /// @param amount Amount of ETH to swap for USDC
+    function swap(uint256 amount, address owner) internal {
+        
+        require(tokenBalanceOf[owner][weth] >= amount,
+                "Insufficient balance");
+       
+        // Pair WETH USDC
+        IUniswapV2Factory factory = IUniswapV2Factory(router.factory());
+        IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(weth, usdc));
+    
+
+    }
 
     /// @notice Request current WETH/USDC rate needed to determine how much ETH should be swapped
     /// @dev Requires chainlink for external data
