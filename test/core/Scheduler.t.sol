@@ -15,7 +15,7 @@ contract SchedulerTest is Test {
         // create contract and provide it with 1 eth
         weth = new WETH();
         scheduler = new Scheduler({_weth: address(weth)});
-        
+
         // provide supplier with ERC20
         weth.mint(supplier, 2 ether);
     }
@@ -44,25 +44,33 @@ contract SchedulerTest is Test {
         emit log_named_uint("paymentId", payment.paymentId);
     }
 
+    /// @notice assert that protocol can manually execute ERC20 transfer
     function testExecutePayment() public {
+        // supply eth to contract
+        address supplier = address(400);
         uint256 supplyAmount = 1 ether;
+        vm.assume(supplier != address(0));
+        weth.mint(supplier, 2 ether);
+
         vm.startPrank(supplier);
+        // allow before supplying (two step)
         weth.increaseAllowance(address(scheduler), 5 ether);
         scheduler.supply(supplyAmount);
+
+        uint256 suppliedBalance = scheduler.balanceOf(supplier, address(weth));
+        assertEq(suppliedBalance, supplyAmount);
 
         // schedule and execute payment
         address to = address(300);
         uint256 paymentId = scheduler.schedulePayment(to, 0.5 ether, 2);
 
         scheduler.executePayment(paymentId);
-        
-        
 
-        uint256 newBalanceOfTO = weth.balanceOf(to);
+        uint256 newBalanceOfTo = weth.balanceOf(to);
         uint256 newBalanceOfFrom = weth.balanceOf(supplier);
-        assertEq(newBalanceOfTO, 0.5 ether);
+        assertEq(newBalanceOfTo, 0.5 ether);
         emit log_named_uint("Balance of supplier after transfer", newBalanceOfFrom);
-        assert(newBalanceOfFrom < 1 ether);
 
+        assert(newBalanceOfFrom == 1 ether);
     }
 }
