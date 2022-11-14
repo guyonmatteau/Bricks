@@ -77,8 +77,8 @@ contract Scheduler {
         DataTypes.RecurringPayment memory payment = getPaymentById(id);
 
         require(
-            IERC20(weth).balanceOf(msg.sender) > payment.amount,
-            "User does not have sufficient funds"
+            tokenBalanceOf[payment.owner][weth] > payment.amount,
+            "User does not have sufficient funds in protocol"
         );
 
         tokenBalanceOf[msg.sender][weth] -= payment.amount;
