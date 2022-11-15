@@ -2,38 +2,54 @@
 pragma solidity ^0.8.13;
 
 import "@forge-std/Test.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import {Scheduler} from "contracts/core/Scheduler.sol";
-import {WETH} from "contracts/core/Token.sol";
 import {DataTypes} from "contracts/libraries/DataTypes.sol";
+
 
 contract SchedulerTest is Test {
     Scheduler internal scheduler;
-    WETH internal weth;
+    
+    IERC20 internal weth;
+    IERC20 internal usdc;
     address supplier = address(100);
 
     // mainnet addresses to test with
-    address _weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address _usdc = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48; 
-    address _uniswapRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+    address internal constant _weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address internal constant _usdc = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48; 
+    address internal constant _uniswapRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
     function setUp() public {
+        
         // create contract and provide it with 1 eth
-        weth = new WETH();
+        weth = IERC20(_weth);
+        usdc = IERC20(_usdc);
         scheduler = new Scheduler({
             _weth: _weth,
             _usdc: _usdc,
             _uniswapRouter: _uniswapRouter
         });
 
-        // provide supplier with ERC20
-        weth.mint(supplier, 2 ether);
     }
 
     /// @notice Assert that a supplier can supply assets weth
     function testSupply(uint256 amount) public {
+ 
+        // provide supplier with ERC20
+        vm.deal(supplier, 3 ether);
+        vm.startPrank(supplier);
+
+        uint256 balanceOfSupplier = weth.balanceOf(supplier);
+        emit log_named_uint("balanceOfSupplier pre mint", balanceOfSupplier);
+        
+        _weth.call{value: 1 ether}("");
+        
+        console.log("Break line");
+
         uint256 supplyAmount = 1 ether;
         vm.startPrank(supplier);
-        weth.increaseAllowance(address(scheduler), 5 ether);
+        //weth.increaseAllowance(address(scheduler), 5 ether);
         scheduler.supply(supplyAmount);
 
         uint256 newBalance = scheduler.balanceOf({
@@ -71,11 +87,11 @@ contract SchedulerTest is Test {
         address supplier2 = address(400);
         uint256 supplyAmount = 1 ether;
         vm.assume(supplier2 != address(0));
-        weth.mint(supplier2, 2 ether);
+        //weth.mint(supplier22, 2 ether);
 
         vm.startPrank(supplier2);
         // allow before supplying (two step)
-        weth.increaseAllowance(address(scheduler), 5 ether);
+       // weth.increaseAllowance(address(scheduler), 5 ether);
         scheduler.supply(supplyAmount);
 
         uint256 suppliedBalance = scheduler.balanceOf(supplier2, address(weth));
