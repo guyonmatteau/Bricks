@@ -11,10 +11,19 @@ contract SchedulerTest is Test {
     WETH internal weth;
     address supplier = address(100);
 
+    // mainnet addresses to test with
+    address _weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address _usdc = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48; 
+    address _uniswapRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+
     function setUp() public {
         // create contract and provide it with 1 eth
         weth = new WETH();
-        scheduler = new Scheduler({_weth: address(weth)});
+        scheduler = new Scheduler({
+            _weth: _weth,
+            _usdc: _usdc,
+            _uniswapRouter: _uniswapRouter
+        });
 
         // provide supplier with ERC20
         weth.mint(supplier, 2 ether);
@@ -59,17 +68,17 @@ contract SchedulerTest is Test {
     /// @notice assert that protocol can manually execute ERC20 transfer
     function testExecutePayment() public {
         // supply eth to contract
-        address supplier = address(400);
+        address supplier2 = address(400);
         uint256 supplyAmount = 1 ether;
-        vm.assume(supplier != address(0));
-        weth.mint(supplier, 2 ether);
+        vm.assume(supplier2 != address(0));
+        weth.mint(supplier2, 2 ether);
 
-        vm.startPrank(supplier);
+        vm.startPrank(supplier2);
         // allow before supplying (two step)
         weth.increaseAllowance(address(scheduler), 5 ether);
         scheduler.supply(supplyAmount);
 
-        uint256 suppliedBalance = scheduler.balanceOf(supplier, address(weth));
+        uint256 suppliedBalance = scheduler.balanceOf(supplier2, address(weth));
         assertEq(suppliedBalance, supplyAmount);
 
         // schedule and execute payment
@@ -79,10 +88,10 @@ contract SchedulerTest is Test {
         scheduler.executePayment(paymentId);
 
         uint256 newBalanceOfTo = weth.balanceOf(to);
-        uint256 newBalanceOfFrom = weth.balanceOf(supplier);
+        uint256 newBalanceOfFrom = weth.balanceOf(supplier2);
         assertEq(newBalanceOfTo, 0.5 ether);
         emit log_named_uint(
-            "Balance of supplier after transfer",
+            "Balance of supplier2 after transfer",
             newBalanceOfFrom
         );
 
