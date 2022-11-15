@@ -26,8 +26,8 @@ contract Scheduler {
     uint256 public paymentId;
     address private immutable chainlinkRefContract;
     address private immutable weth;
-    address private immutable usdc;
-    IUniswapV2Router02 private immutable router;
+//    address private immutable usdc;
+    //IUniswapV2Router02 private immutable router;
 
     // paymentId => payment
     mapping(uint256 => DataTypes.RecurringPayment) public scheduledPayments;
@@ -36,15 +36,11 @@ contract Scheduler {
 
     constructor(
         // address _chainlinkRefContract,
-        address _weth,
-        address _usdc,
-        address _uniswapRouter
+        address _weth
     ) {
         // chainlinkRefContract = _chainlinkRefContract;
         chainlinkRefContract = address(1);
         weth = _weth;
-        usdc = _usdc;
-        router = IUniswapV2Router02(_uniswapRouter);
     }
 
     receive() external payable {}
@@ -116,8 +112,8 @@ contract Scheduler {
                 "Insufficient balance");
        
         // Pair WETH USDC
-        IUniswapV2Factory factory = IUniswapV2Factory(router.factory());
-        IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(weth, usdc));
+        //IUniswapV2Factory factory = IUniswapV2Factory(router.factory());
+        //IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(weth, usdc));
     
 
     }
