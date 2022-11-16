@@ -7,3 +7,4 @@ Some very obvious, some less.
 Contract setup
 - We might not even need a "Vault" where users deposit there assets, simply only keeping tracking of the allowances for them is sufficient, and might even be more trustless. To do check with Goncalo. Also, what is the revenue model then?
     - It also removes one layer of complexity and adds a layer of flexibility, since a user does not need to supply funds between his or her wallet and the vault. 
+- If in the returns block of a function you specify the names of the vars you return you don't need to explicitly return them. 

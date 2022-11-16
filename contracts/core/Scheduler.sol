@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
+import "@forge-std/console.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@uniswap/v2-core/interfaces/IUniswapV2Pair.sol";
 import "@uniswap/v2-core/interfaces/IUniswapV2Factory.sol";
@@ -13,12 +14,12 @@ contract Scheduler {
     event PaymentExecuted(uint256 indexed paymentId);
     event PaymentDeactivated(uint256 indexed paymentId, address indexed owner);
     event TokenSupplied(address indexed sender, address indexed tokenAddress, uint256 amount);
+    event CheckingReserve(uint112 reserve0, uint112 reserve1, uint256 amount0, uint256 amount1);
 
     uint256 public paymentId;
     //address private immutable chainlinkRefContract;
     ERC20 private immutable weth;
     ERC20 private immutable usdc;
-
     IUniswapV2Router02 private immutable router;
 
     // paymentId => payment
@@ -86,13 +87,29 @@ contract Scheduler {
 
     /// @notice Swap ETH for required amount USDC
     /// @dev This should do XA
-    /// @param amount Amount of ETH to swap for USDC
-    function swap(uint256 amount, address owner) internal {
+    /// @param amount Amount of USDC to swap to USDC
+    function swap(uint256 amount, address owner) public {
         require(tokenBalanceOf[owner][address(weth)] >= amount, "Insufficient balance");
 
         // Pair WETH USDC
-        //IUniswapV2Factory factory = IUniswapV2Factory(router.factory());
-        //IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(weth, usdc));
+        IUniswapV2Factory factory = IUniswapV2Factory(router.factory());
+        IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(address(weth), address(usdc)));
+        
+        // get liquidity
+        (uint112 reserve0, uint112 reserve1, ) = pair.getReserves();
+       
+        uint256 amount0 = pair.token0() == address(weth) ? 0 : amount;
+        uint256 amount1 = pair.token0() == address(weth) ? amount : 0;
+
+        emit CheckingReserve(reserve0, reserve1, amount0, amount1);
+
+        pair.swap({
+            amount0Out: amount0,
+            amount1Out: amount1,
+            to: address(this),
+            data: abi.encode("Data")
+        });
+    
     }
 
     /// @notice Request current WETH/USDC rate needed to determine how much ETH should be swapped
