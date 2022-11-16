@@ -142,7 +142,7 @@ contract Scheduler {
         emit TokenSupplied(msg.sender, weth, amount);
     }
 
-    function balanceOf(address user, address erc20) public returns (uint256) {
+    function balanceOf(address user, address erc20) public view returns (uint256) {
         return tokenBalanceOf[user][erc20];
     }
 }
