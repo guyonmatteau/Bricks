@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@uniswap/v2-core/interfaces/IUniswapV2Pair.sol";
 import "@uniswap/v2-core/interfaces/IUniswapV2Factory.sol";
 import "@uniswap/v2-periphery/interfaces/IUniswapV2Router02.sol";
@@ -15,10 +15,11 @@ contract Scheduler {
     event TokenSupplied(address indexed sender, address indexed tokenAddress, uint256 amount);
 
     uint256 public paymentId;
-    address private immutable chainlinkRefContract;
-    address private immutable weth;
-    //    address private immutable usdc;
-    //IUniswapV2Router02 private immutable router;
+    //address private immutable chainlinkRefContract;
+    ERC20 private immutable weth;
+    ERC20 private immutable usdc;
+
+    IUniswapV2Router02 private immutable router;
 
     // paymentId => payment
     mapping(uint256 => DataTypes.RecurringPayment) public scheduledPayments;
@@ -26,12 +27,15 @@ contract Scheduler {
     mapping(address => mapping(address => uint256)) public tokenBalanceOf;
 
     constructor(
-        // address _chainlinkRefContract,
-        address _weth
+        //address _chainlinkRefContract,
+        address _weth,
+        address _usdc, 
+        address _uniswapRouter
     ) {
-        // chainlinkRefContract = _chainlinkRefContract;
-        chainlinkRefContract = address(1);
-        weth = _weth;
+        //chainlinkRefContract = _chainlinkRefContract;
+        weth = ERC20(_weth);
+        usdc = ERC20(_usdc);
+        router = IUniswapV2Router02(_uniswapRouter);
     }
 
     receive() external payable {}
@@ -64,9 +68,9 @@ contract Scheduler {
     function executePayment(uint256 id) public {
         DataTypes.RecurringPayment memory payment = getPaymentById(id);
 
-        require(tokenBalanceOf[payment.owner][weth] > payment.amount, "User does not have sufficient funds in protocol");
+        require(tokenBalanceOf[payment.owner][address(weth)] > payment.amount, "User does not have sufficient funds in protocol");
 
-        tokenBalanceOf[msg.sender][weth] -= payment.amount;
+        tokenBalanceOf[msg.sender][address(weth)] -= payment.amount;
         payment.lastExecuted = block.timestamp;
         scheduledPayments[id] = payment;
         bool success = IERC20(weth).transferFrom(address(this), payment.to, payment.amount);
@@ -84,7 +88,7 @@ contract Scheduler {
     /// @dev This should do XA
     /// @param amount Amount of ETH to swap for USDC
     function swap(uint256 amount, address owner) internal {
-        require(tokenBalanceOf[owner][weth] >= amount, "Insufficient balance");
+        require(tokenBalanceOf[owner][address(weth)] >= amount, "Insufficient balance");
 
         // Pair WETH USDC
         //IUniswapV2Factory factory = IUniswapV2Factory(router.factory());
@@ -97,15 +101,15 @@ contract Scheduler {
 
     function supply(uint256 amount) public {
         // check that user has enough funds
-        require(IERC20(weth).balanceOf(msg.sender) >= amount, "Insufficient balance");
+        require(weth.balanceOf(msg.sender) >= amount, "Insufficient balance");
         // give scheduler approval to get funds from user
-        require(IERC20(weth).approve(address(this), amount));
+        require(weth.approve(address(this), amount));
         // get funds from users
-        require(IERC20(weth).transferFrom(msg.sender, address(this), amount));
+        require(weth.transferFrom(msg.sender, address(this), amount));
 
-        tokenBalanceOf[msg.sender][weth] += amount;
+        tokenBalanceOf[msg.sender][address(weth)] += amount;
 
-        emit TokenSupplied(msg.sender, weth, amount);
+        emit TokenSupplied(msg.sender, address(weth), amount);
     }
 
     function balanceOf(address user, address erc20) public view returns (uint256) {
