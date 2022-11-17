@@ -16,9 +16,14 @@ contract SchedulerTest is Test {
     address to = address(300);
 
     // mainnet addresses to test with
-    address internal constant _weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address internal constant _usdc = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
-    address internal constant _uniswapRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+    //address internal constant _weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // mainnet
+    address internal constant _weth = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6; // goerli
+    //address internal constant _usdc = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48; // mainnet
+    address internal constant _usdc = 0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557; // goerli
+
+    address internal constant _uniswapRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D; // both main and goerli
+
+    address internal constant _feedETHUSD = 0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e; // goerli
 
     function setUp() public {
         // create contract and provide it with 1 eth
@@ -27,7 +32,8 @@ contract SchedulerTest is Test {
         scheduler = new Scheduler({
             _weth: _weth,
             _usdc: _usdc,
-            _uniswapRouter: _uniswapRouter
+            _uniswapRouter: _uniswapRouter,
+            _feedETHUSD: _feedETHUSD
         });
     }
 
@@ -95,21 +101,27 @@ contract SchedulerTest is Test {
         uint256 newBalanceOfUser = scheduler.balanceOf(user, address(weth));
         assertEq(newBalanceOfUser, 0.1 ether, "New supply of user in protocl not as expected");
     }
-    
+
     /// //@notice assert that protcol can swap funds for user
     //function testSwap() public {
-        
-        ///// supply to contract
-        //testSupplyWETH();
-        //assertEq(scheduler.balanceOf(user, address(usdc)), 0, "USDC balance user pre-swap is not 0");
-            
-        //vm.startPrank(user);
 
-        //scheduler.swap({amount: 1000000000000 wei, owner: user});
+    ///// supply to contract
+    //testSupplyWETH();
+    //assertEq(scheduler.balanceOf(user, address(usdc)), 0, "USDC balance user pre-swap is not 0");
 
-        //uint256 usdcSupplyOfUser = scheduler.balanceOf({user: user, erc20: address(usdc)});
+    //vm.startPrank(user);
 
-        //emit log_named_uint("usdcSupplyOfUserPostSwap", usdcSupplyOfUser);
+    //scheduler.swap({amount: 1000000000000 wei, owner: user});
+
+    //uint256 usdcSupplyOfUser = scheduler.balanceOf({user: user, erc20: address(usdc)});
+
+    //emit log_named_uint("usdcSupplyOfUserPostSwap", usdcSupplyOfUser);
 
     //}
+
+    function testGetLatestPrice() public {
+        (uint256 decimals, int256 latestPrice) = scheduler.getLatestPrice();
+        emit log_named_uint("Number of decimals in latest round", decimals);
+        emit log_named_int("Latest ETH/USD on block x Goerli", latestPrice);
+    }
 }

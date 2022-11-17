@@ -25,8 +25,12 @@ deploy.localhost:
 deploy.goerli:
 	forge create --private-key ${PRIVATE_KEY_GOERLI} --rpc-url ${GOERLI_RPC_URL}${ALCHEMY_KEY} --verify src/${CONTRACT}.sol:${CONTRACT}
 
-test:
-	forge test -vvvv --fork-url ${MAINNET_RPC_URL}${ALCHEMY_KEY} 
+
+test.main:
+	forge test -vvvv --fork-url ${MAINNET_RPC_URL}${ALCHEMY_KEY_MAIN} 
+
+test.goerli:
+	forge test -vvvv --fork-url ${GOERLI_RPC_URL}${ALCHEMY_KEY_GOERLI}
 
 console:
 	npx hardhat console --network localhost

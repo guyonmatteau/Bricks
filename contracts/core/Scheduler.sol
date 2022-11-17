@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@uniswap/v2-core/interfaces/IUniswapV2Pair.sol";
 import "@uniswap/v2-core/interfaces/IUniswapV2Factory.sol";
 import "@uniswap/v2-periphery/interfaces/IUniswapV2Router02.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 import {DataTypes} from "contracts/libraries/DataTypes.sol";
 
@@ -22,6 +23,9 @@ contract Scheduler {
     ERC20 private immutable usdc;
     IUniswapV2Router02 private immutable router;
 
+    // chainlink
+    AggregatorV3Interface internal priceFeed;
+
     // paymentId => payment
     mapping(uint256 => DataTypes.RecurringPayment) public scheduledPayments;
     // user => ERC20 => balance
@@ -30,13 +34,15 @@ contract Scheduler {
     constructor(
         //address _chainlinkRefContract,
         address _weth,
-        address _usdc, 
-        address _uniswapRouter
+        address _usdc,
+        address _uniswapRouter,
+        address _feedETHUSD
     ) {
         //chainlinkRefContract = _chainlinkRefContract;
         weth = ERC20(_weth);
         usdc = ERC20(_usdc);
         router = IUniswapV2Router02(_uniswapRouter);
+        priceFeed = AggregatorV3Interface(_feedETHUSD);
     }
 
     receive() external payable {}
@@ -69,7 +75,10 @@ contract Scheduler {
     function executePayment(uint256 id) public {
         DataTypes.RecurringPayment memory payment = getPaymentById(id);
 
-        require(tokenBalanceOf[payment.owner][address(weth)] > payment.amount, "User does not have sufficient funds in protocol");
+        require(
+            tokenBalanceOf[payment.owner][address(weth)] > payment.amount,
+            "User does not have sufficient funds in protocol"
+        );
 
         tokenBalanceOf[msg.sender][address(weth)] -= payment.amount;
         payment.lastExecuted = block.timestamp;
@@ -94,35 +103,25 @@ contract Scheduler {
         // Pair WETH USDC
         IUniswapV2Factory factory = IUniswapV2Factory(router.factory());
         IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(address(weth), address(usdc)));
-        
+
         // get liquidity
-        (uint112 reserve0, uint112 reserve1, ) = pair.getReserves();
-       
+        (uint112 reserve0, uint112 reserve1,) = pair.getReserves();
+
         uint256 amount0 = pair.token0() == address(weth) ? 0 : amount;
         uint256 amount1 = pair.token0() == address(weth) ? amount : 0;
 
         emit CheckingReserve(reserve0, reserve1, amount0, amount1);
 
-        pair.swap({
-            amount0Out: amount0,
-            amount1Out: amount1,
-            to: address(this),
-            data: abi.encode("Data")
-        });
-    
+        pair.swap({amount0Out: amount0, amount1Out: amount1, to: address(this), data: abi.encode("Data")});
     }
 
     /// @notice Request current WETH/USDC rate needed to determine how much ETH should be swapped
     /// @dev Requires chainlink for external data
-    function getLatestPrice() public view returns (int) {
-        (
-            ,
-            /*uint80 roundID*/ int price /*uint startedAt*/ /*uint timeStamp*/ /*uint80 answeredInRound*/,
-            ,
-            ,
+    function getLatestPrice() public view returns (uint256 decimals, int256 price) {
+        decimals = priceFeed.decimals();
 
-        ) = priceFeed.latestRoundData();
-        return price;
+        //(uint80 roundID, int price, uint startedAt, uint timeStamp, uint80 answeredInRound)
+        (, price,,,) = priceFeed.latestRoundData();
     }
 
     function supply(uint256 amount) public {
