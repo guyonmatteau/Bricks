@@ -96,20 +96,20 @@ contract SchedulerTest is Test {
         assertEq(newBalanceOfUser, 0.1 ether, "New supply of user in protocl not as expected");
     }
     
-    /// @notice assert that protcol can swap funds for user
-    function testSwap() public {
+    /// //@notice assert that protcol can swap funds for user
+    //function testSwap() public {
         
-        /// supply to contract
-        testSupplyWETH();
-        assertEq(scheduler.balanceOf(user, address(usdc)), 0, "USDC balance user pre-swap is not 0");
+        ///// supply to contract
+        //testSupplyWETH();
+        //assertEq(scheduler.balanceOf(user, address(usdc)), 0, "USDC balance user pre-swap is not 0");
             
-        vm.startPrank(user);
+        //vm.startPrank(user);
 
-        scheduler.swap({amount: 1000000000000 wei, owner: user});
+        //scheduler.swap({amount: 1000000000000 wei, owner: user});
 
-        uint256 usdcSupplyOfUser = scheduler.balanceOf({user: user, erc20: address(usdc)});
+        //uint256 usdcSupplyOfUser = scheduler.balanceOf({user: user, erc20: address(usdc)});
 
-        emit log_named_uint("usdcSupplyOfUserPostSwap", usdcSupplyOfUser);
+        //emit log_named_uint("usdcSupplyOfUserPostSwap", usdcSupplyOfUser);
 
-    }
+    //}
 }

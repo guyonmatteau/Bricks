@@ -114,7 +114,16 @@ contract Scheduler {
 
     /// @notice Request current WETH/USDC rate needed to determine how much ETH should be swapped
     /// @dev Requires chainlink for external data
-    function requestRate() internal {}
+    function getLatestPrice() public view returns (int) {
+        (
+            ,
+            /*uint80 roundID*/ int price /*uint startedAt*/ /*uint timeStamp*/ /*uint80 answeredInRound*/,
+            ,
+            ,
+
+        ) = priceFeed.latestRoundData();
+        return price;
+    }
 
     function supply(uint256 amount) public {
         // check that user has enough funds
