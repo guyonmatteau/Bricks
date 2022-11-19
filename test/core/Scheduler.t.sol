@@ -15,14 +15,13 @@ contract SchedulerTest is Test {
     address user = address(100);
     address to = address(300);
 
-    // mainnet addresses to test with
+    /// addresss to test against Main or Goerli fork
     //address internal constant _weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // mainnet
-    address internal constant _weth = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6; // goerli
     //address internal constant _usdc = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48; // mainnet
-    address internal constant _usdc = 0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557; // goerli
-
     address internal constant _uniswapRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D; // both main and goerli
-
+    
+    address internal constant _weth = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6; // goerli
+    address internal constant _usdc = 0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557; // goerli
     address internal constant _feedETHUSD = 0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e; // goerli
 
     function setUp() public {
