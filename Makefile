@@ -1,4 +1,4 @@
-.PHONY: chain deploy test lint clean
+.PHONY: app chain deploy test lint clean
 include .env
 export 
 
@@ -9,6 +9,9 @@ ifdef contract
 endif
 
 DOCKER_IMAGE=Scheduler
+LC_ALL="C.UTF-8"
+LANG="C.UTF-8"
+FLASK_APP=app/server.py
 
 ## NETWORKS
 GOERLI_RPC_URL=https://eth-goerli.alchemyapi.io/v2/
@@ -27,8 +30,7 @@ deploy.localhost:
 	forge create --private-key ${PRIVATE_KEY1} contracts/core/${contract}.sol:${contract}
 
 deploy.goerli:
-	forge create --private-key ${PRIVATE_KEY_GOERLI} --rpc-url ${GOERLI_RPC_URL}${ALCHEMY_KEY} --verify contracts/core/${contract}.sol:${contract}
-
+	forge create --private-key ${PRIVATE_KEY_GOERLI} --rpc-url ${GOERLI_RPC_URL}${ALCHEMY_KEY_GOERLI} --verify contracts/core/${CONTRACT}.sol:${CONTRACT}
 
 test.main:
 	forge test -vvvv --fork-url ${MAINNET_RPC_URL}${ALCHEMY_KEY_MAIN} 
@@ -45,6 +47,5 @@ lint:
 clean:
 	-rm -r build cache
 
-# UI
-ui:
-	streamlit run app/main.py
+app:
+	flask run

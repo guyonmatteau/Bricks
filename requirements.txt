@@ -1,0 +1,9 @@
+web3==5.31.0
+flask
+flask-sqlalchemy
+flask_jwt_extended
+
+mock
+gevent
+gunicorn
+flask_sslify
