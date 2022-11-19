@@ -3,7 +3,11 @@ include .env
 export 
 
 ### GLOBALS
-CONTRACT=Scheduler
+contract=Scheduler
+ifdef contract
+	override contract := ${contract}
+endif
+
 DOCKER_IMAGE=Scheduler
 
 ## NETWORKS
@@ -20,10 +24,10 @@ accounts:
 	npx hardhat run --network localhost scripts/accounts.js
 
 deploy.localhost: 
-	forge create --private-key ${PRIVATE_KEY1} src/${CONTRACT}.sol:${CONTRACT}
+	forge create --private-key ${PRIVATE_KEY1} contracts/core/${contract}.sol:${contract}
 
 deploy.goerli:
-	forge create --private-key ${PRIVATE_KEY_GOERLI} --rpc-url ${GOERLI_RPC_URL}${ALCHEMY_KEY} --verify src/${CONTRACT}.sol:${CONTRACT}
+	forge create --private-key ${PRIVATE_KEY_GOERLI} --rpc-url ${GOERLI_RPC_URL}${ALCHEMY_KEY} --verify contracts/core/${contract}.sol:${contract}
 
 
 test.main:
