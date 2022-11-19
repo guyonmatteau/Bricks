@@ -16,8 +16,6 @@ from sqlalchemy import (Column, Float, ForeignKey, Integer, MetaData, String,
                         Table)
 from web3.auto import w3
 
-# from app.ethhelper import *
-
 app = Flask(__name__,static_url_path='/static')
 app.jinja_env.add_extension('jinja2.ext.do')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -72,8 +70,6 @@ def login():
 
     public_address = request.json[0]
     signature = request.json[1]
-
-    domain = "simple-flask-metamask.herokuapp.com"
 
     rightnow = int(time.time())
     sortanow = rightnow-rightnow%600

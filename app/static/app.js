@@ -4,39 +4,6 @@ let accounts;
 let accountAddress = "";
 let signer;
 
-/*function login()*/
-/*{*/
-
-  /*console.log('oh hey there');*/
-
-  /*// signer.signMessage("hello");*/
-
-  /*rightnow = (Date.now()/1000).toFixed(0)*/
-  /*sortanow = rightnow-(rightnow%600)*/
-
-  /*signer.signMessage("Signing in to "+document.domain+" at "+sortanow, accountAddress, "test password!")*/
-              /*.then((signature) => {               handleAuth(accountAddress, signature)*/
-              /*});*/
-/*}*/
-
-/*function handleAuth(accountAddress, signature)*/
-/*{*/
-  /*console.log(accountAddress);*/
-  /*console.log(signature);*/
-
-  /*fetch('login', {*/
-    /*method: 'post',*/
-    /*headers: {'Content-Type': 'application/json'},*/
-    /*body: JSON.stringify([accountAddress,signature])*/
-  /*}).then((response) => {*/
-    /*return response.json();*/
-  /*})*/
-  /*.then((data) => {*/
-    /*console.log(data);*/
-  /*});*/
-
-/*}*/
-
 if (typeof window.ethereum !== 'undefined') {
   console.log('MetaMask is installed!');
 }
@@ -46,6 +13,7 @@ const showAccount = document.querySelector('.showAccount');
 const showChain = document.querySelector('.showChain');
 
 ethereumButton.addEventListener('click', () => {
+  ethereum.enable();
   connectWallet();
 });
 
@@ -55,8 +23,19 @@ async function getAccount() {
   showAccount.innerHTML = account;
 }
 
+ethereum.on('chainChanged', (chainId) => {
+  // Handle the new chain.
+  // Correctly handling chain changes can be complicated.
+  // We recommend reloading the page unless you have good reason not to.
+  console.log("New chain: " + chainId);
+  connectWallet();
+  //window.location.reload();
+});
+
+
+
 function connectWallet() {
-    ethereum.enable().then(function () {
+    //ethereum.enable().then(function () {
 
         const chain = ethereum.networkVersion;
         showChain.innerHTML = chain;
@@ -91,7 +70,7 @@ function connectWallet() {
                 /*})*/
             /*}*/
         /*})*/
-    })
+    //})
 };
 
 
