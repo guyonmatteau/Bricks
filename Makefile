@@ -9,9 +9,12 @@ ifdef contract
 endif
 
 DOCKER_IMAGE=Scheduler
+
+# Flask app
 LC_ALL="C.UTF-8"
 LANG="C.UTF-8"
 FLASK_APP=app/server.py
+FLASK_DEBUG=1
 
 ## NETWORKS
 GOERLI_RPC_URL=https://eth-goerli.alchemyapi.io/v2/

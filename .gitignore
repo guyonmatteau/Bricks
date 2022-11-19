@@ -46,4 +46,6 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# Flask app artifacts
+instance/*
 

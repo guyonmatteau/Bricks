@@ -1,18 +1,20 @@
-import flask
-from flask import render_template, request, Flask, g, send_from_directory, abort, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Table, Column, Float, Integer, String, MetaData, ForeignKey
-
 import json
+import os
 import random
 import string
-import os
 import time
 
-from web3.auto import w3
+import flask
 from eth_account.messages import defunct_hash_message
-
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, set_access_cookies
+from flask import (Flask, abort, g, jsonify, render_template, request,
+                   send_from_directory)
+from flask_jwt_extended import (JWTManager, create_access_token,
+                                get_jwt_identity, jwt_required,
+                                set_access_cookies)
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import (Column, Float, ForeignKey, Integer, MetaData, String,
+                        Table)
+from web3.auto import w3
 
 from app.ethhelper import *
 
