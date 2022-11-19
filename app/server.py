@@ -16,7 +16,7 @@ from sqlalchemy import (Column, Float, ForeignKey, Integer, MetaData, String,
                         Table)
 from web3.auto import w3
 
-from app.ethhelper import *
+# from app.ethhelper import *
 
 app = Flask(__name__,static_url_path='/static')
 app.jinja_env.add_extension('jinja2.ext.do')
