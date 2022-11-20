@@ -7,3 +7,4 @@ mock
 gevent
 gunicorn
 flask_sslify
+python-dot-env~=0.21.0

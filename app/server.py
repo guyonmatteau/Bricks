@@ -1,96 +1,29 @@
-import json
 import os
-import random
-import string
-import time
-
 import flask
-from eth_account.messages import defunct_hash_message
-from flask import (Flask, abort, g, jsonify, render_template, request,
-                   send_from_directory)
-from flask_jwt_extended import (JWTManager, create_access_token,
-                                get_jwt_identity, jwt_required,
-                                set_access_cookies)
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import (Column, Float, ForeignKey, Integer, MetaData, String,
-                        Table)
-from web3.auto import w3
+from flask import Flask, render_template, request, send_from_directory
 
-app = Flask(__name__,static_url_path='/static')
-app.jinja_env.add_extension('jinja2.ext.do')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-db = SQLAlchemy(app)
+from app.chain import Chain
 
-# Setup the Flask-JWT-Extended extension
-# log2(26^22) ~= 100 (pull at least 100 bits of entropy)
-app.config['JWT_SECRET_KEY'] = ''.join(random.choice(string.ascii_lowercase) for i in range(22))
-app.config['JWT_TOKEN_LOCATION'] = ['cookies']
-app.config['JWT_COOKIE_SECURE'] = True
-#app.config['JWT_ACCESS_COOKIE_PATH'] = '/api/'
-app.config['JWT_COOKIE_CSRF_PROTECT'] = True
-jwt = JWTManager(app)
+app = Flask(__name__, static_url_path="/static")
+app.jinja_env.add_extension("jinja2.ext.do")
 
-@app.before_first_request
-def setup():
-  print("[+] running setup")
-  try:
-    db.create_all()
-    print("[+] created users db")
-  except:
-    print("[+] users db already exists")
 
-def generate_nonce(self, length=8):
-  return ''.join([str(randint(0, 9)) for i in range(length)])
-
-class User(db.Model):
-  public_address = db.Column(db.String(80), primary_key=True, nullable=False, unique=True)
-  nonce = db.Column(db.Integer(),nullable=False,default=generate_nonce,)
-
-@app.route('/')
+@app.route("/")
+@app.route("/index")
 def landing():
-  return render_template("index.html")
+    return render_template("index.html")
 
-@app.route('/secret')
-@jwt_required
-def secret():
-  current_user = get_jwt_identity()
-  numtokens = tokencount(current_user)
-  if numtokens > 100:
-    msg="The Galaxy is on Orion's Belt"
-  else:
-    msg="You need more than 100 GST to view this message."
-  return ("HELLO "+str(current_user)+" "+msg)
 
-@app.route('/login', methods=['POST'])
-def login():
+@app.route("/connect")
+def connect():
+    address = request.args.get("address")
+    chain_id = request.args.get("chain")
 
-    print("[+] creating session")
+    print(f"Current address: {address}")
+    print(f"Current chain_id: {chain_id}")
 
-    print("info: "+(str(request.json)))
+    chain = Chain(chain_id=chain_id)
+    balance = chain.get_balance(address)
 
-    public_address = request.json[0]
-    signature = request.json[1]
-
-    rightnow = int(time.time())
-    sortanow = rightnow-rightnow%600
-
-    original_message = 'Signing in to {} at {}'.format(domain,sortanow)
-    print("[+] checking: "+original_message)
-    message_hash = defunct_hash_message(text=original_message)
-    signer = w3.eth.account.recoverHash(message_hash, signature=signature)
-    print("[+] fascinating")
-
-    if signer == public_address:
-      print("[+] this is fine "+str(signer))
-       # account.nonce = account.generate_nonce()
-       # db.session.commit()
-    else:
-        abort(401, 'could not authenticate signature')
-
-    print("[+] OMG looks good")
-
-    access_token = create_access_token(identity=public_address)
-
-    resp = jsonify({'login': True})
-    set_access_cookies(resp, access_token)
-    return resp, 200
+    print(f"Balance of {address} on chain {chain}: {balance}")
+    return render_template("index.html", chain=chain_id, address=address, balance=balance)
