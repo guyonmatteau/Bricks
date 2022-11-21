@@ -1,5 +1,5 @@
 # Bricks
-Capstone project for Artemis bootcamp. 
+Bricks is the final capstone project for the [Artemis Bootcamp](https://www.artemis.education/), an intensive 8-week EVM & Solidity bootcamp. In the capstone project one brings together all the acquired knowledge and aims to build a DeFi or web3 product.
 
 ## Introduction
 Bricks is a combination of Defi and paying your rent or mortgage. The basic idea is that it is a combination of e.g. Aave or Gearbox, and a scheduler that allows you to set recurring payments to an EOA. The protocol consists of the following components:
