@@ -1,3 +1,5 @@
+_work in progress_
+
 # Bricks
 Bricks is the final capstone project for the [Artemis Bootcamp](https://www.artemis.education/), an intensive 8-week EVM & Solidity bootcamp. In the capstone project one brings together all the acquired knowledge and aims to build a DeFi or web3 product.
 
